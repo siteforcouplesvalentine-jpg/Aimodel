@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delna AI | Security Dashboard</title>
+    <title>Delna AI | Security Interface</title>
     <style>
         :root {
             --primary-glow: rgba(0, 212, 255, 0.6);
@@ -14,41 +14,27 @@
         body {
             background: radial-gradient(circle at center, #1a1f2c 0%, var(--bg-color) 100%);
             color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; margin: 0; overflow: hidden;
         }
 
-        /* Glassmorphism Container */
         .dashboard {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(25px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 25px;
-            padding: 40px;
+            border-radius: 30px;
+            padding: 50px;
             width: 400px;
             text-align: center;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.05);
-            position: relative;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+            transition: 1s ease;
         }
 
-        .status-bar {
-            color: #00ffcc;
-            font-size: 12px;
-            letter-spacing: 2px;
-            margin-bottom: 30px;
-            text-shadow: 0 0 10px #00ffcc;
-        }
-
-        /* The Shield Logo Animation */
+        /* The Shield & Circular Loader */
         .logo-container {
             position: relative;
-            width: 150px;
-            height: 150px;
+            width: 160px; height: 160px;
             margin: 0 auto 30px;
         }
 
@@ -59,89 +45,100 @@
             border-radius: 50%;
             border: 2px solid transparent;
             border-top: 2px solid var(--primary-glow);
-            border-bottom: 2px solid var(--accent-glow);
-            animation: rotate 3s linear infinite;
+            border-right: 2px solid var(--accent-glow);
+            animation: rotate 4s linear infinite;
+            transition: 0.5s;
+        }
+
+        /* This happens when AI is 'Thinking' */
+        .thinking .shield-circle {
+            animation: rotate 0.8s linear infinite; /* Faster rotation */
+            border-top: 3px solid #00ffcc;
+            box-shadow: 0 0 25px #00ffcc;
         }
 
         .shield-icon {
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 40px;
-            filter: drop-shadow(0 0 10px var(--primary-glow));
+            font-size: 50px;
+            filter: drop-shadow(0 0 15px var(--primary-glow));
+            transition: 0.5s;
+        }
+
+        .thinking .shield-icon {
+            filter: drop-shadow(0 0 30px #00ffcc);
+            transform: translate(-50%, -50%) scale(1.1);
         }
 
         @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
-        /* Input Field */
         .input-box {
-            background: rgba(255, 255, 255, 0.07);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 12px 20px;
-            width: 90%;
-            color: white;
-            outline: none;
-            transition: 0.3s;
-            box-shadow: 0 0 5px rgba(0, 212, 255, 0.2);
+            border-radius: 30px;
+            padding: 15px 25px;
+            width: 85%; color: white;
+            outline: none; text-align: center;
+            transition: 0.4s;
         }
 
-        .input-box:focus {
-            border-color: var(--primary-glow);
-            box-shadow: 0 0 15px var(--primary-glow);
-        }
+        .input-box:focus { border-color: var(--primary-glow); box-shadow: 0 0 20px rgba(0, 212, 255, 0.2); }
 
-        #output-msg {
-            margin-top: 20px;
-            font-size: 14px;
-            min-height: 20px;
-            color: #ccc;
-        }
+        #output-msg { margin-top: 25px; font-size: 14px; color: #88edff; min-height: 40px; }
     </style>
 </head>
 <body>
 
-    <div class="dashboard">
-        <div class="status-bar" id="status">SYSTEM SECURED</div>
+    <div class="dashboard" id="mainDashboard">
+        <div id="status" style="font-size: 10px; letter-spacing: 3px; margin-bottom: 20px; color: #00ffcc;">SYSTEM SECURED</div>
         
-        <div class="logo-container">
+        <div class="logo-container" id="logoFrame">
             <div class="shield-circle"></div>
             <div class="shield-icon">🛡️</div>
         </div>
 
-        <h2 style="font-weight: 300; letter-spacing: 2px;">DELNA AI</h2>
+        <h1 style="font-weight: 200; letter-spacing: 4px;">DELNA AI</h1>
         
-        <input type="text" class="input-box" id="userInput" placeholder="Type command..." autocomplete="off">
+        <input type="text" class="input-box" id="userInput" placeholder="Enter command..." autocomplete="off">
         
-        <div id="output-msg">Awaiting input...</div>
+        <div id="output-msg"></div>
     </div>
 
     <script>
         const input = document.getElementById('userInput');
         const output = document.getElementById('output-msg');
-        const status = document.getElementById('status');
+        const logoFrame = document.getElementById('logoFrame');
+
+        function typeWriter(text, i = 0) {
+            if (i < text.length) {
+                output.innerHTML += text.charAt(i);
+                setTimeout(() => typeWriter(text, i + 1), 40);
+            } else {
+                // Stop thinking animation when typing finishes
+                logoFrame.classList.remove('thinking');
+            }
+        }
 
         input.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
-                const cmd = input.value.toLowerCase();
+                const val = input.value;
                 input.value = '';
+                output.innerHTML = '';
+                
+                // Start thinking animation
+                logoFrame.classList.add('thinking');
 
-                if (cmd.includes('hack') || cmd.includes('format')) {
-                    status.innerText = 'THREAT DETECTED';
-                    status.style.color = '#ff4d4d';
-                    status.style.textShadow = '0 0 15px #ff4d4d';
-                    output.innerText = 'Access Denied: Protected by Delna AI Shield.';
-                    output.style.color = '#ff4d4d';
-                } else if (cmd.includes('hello') || cmd.includes('hi')) {
-                    output.innerText = 'Hello Commander. System is stable.';
-                    output.style.color = '#00ffcc';
-                } else {
-                    output.innerText = 'Command processed: ' + cmd;
-                    output.style.color = '#ccc';
-                }
+                // Simulate processing delay
+                setTimeout(() => {
+                    let response = "Executing secure protocol for: " + val;
+                    if(val.toLowerCase().includes("hack")) response = "Threat blocked. Delna AI has secured the perimeter.";
+                    
+                    typeWriter(response);
+                }, 1200); // 1.2 seconds 'thinking' time
             }
         });
     </script>
