@@ -3,115 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Delna AI | Diamond Proctor</title>
+    <title>Delna AI | Diamond Pro Edition</title>
     <style>
         :root {
             --bg-color: #0e1117;
-            --sidebar-bg: rgba(23, 25, 30, 0.95);
+            --sidebar-bg: rgba(23, 25, 30, 0.98);
             --gemini-blue: #4285f4;
             --gemini-purple: #9b72cb;
-            --gemini-cyan: #24c1e0;
+            --success-cyan: #00f2ff;
+            --text-gray: #e8eaed;
         }
 
         body, html {
             margin: 0; padding: 0;
             height: 100dvh;
             background-color: var(--bg-color);
-            color: white; font-family: 'Google Sans', 'Segoe UI', sans-serif;
+            color: white; font-family: 'Segoe UI', Roboto, sans-serif;
             display: flex; flex-direction: column;
             overflow: hidden;
         }
 
-        /* --- SMOOTH OVERLAY --- */
+        /* --- OVERLAY --- */
         .overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
-            opacity: 0; visibility: hidden;
-            transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); z-index: 900;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px);
+            opacity: 0; visibility: hidden; transition: 0.4s; z-index: 900;
         }
         .overlay.active { opacity: 1; visibility: visible; }
 
-        /* --- PREMIUM SIDEBAR --- */
+        /* --- SIDEBAR --- */
         .sidebar {
-            width: 300px; background: var(--sidebar-bg);
+            width: 290px; background: var(--sidebar-bg);
             display: flex; flex-direction: column;
-            padding: 30px 25px; border-right: 1px solid rgba(255,255,255,0.1);
+            padding: 30px 20px; border-right: 1px solid rgba(255,255,255,0.1);
             position: fixed; height: 100%; z-index: 1000;
             transform: translateX(-105%);
-            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 20px 0 60px rgba(0,0,0,0.8);
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 20px 0 50px rgba(0,0,0,0.5);
         }
         .sidebar.open { transform: translateX(0); }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; }
+        .close-btn { font-size: 26px; cursor: pointer; color: #9aa0a6; }
 
-        .sidebar-header { 
-            display: flex; justify-content: space-between; align-items: center; 
-            margin-bottom: 40px; opacity: 0; transform: translateY(-10px);
-        }
-        .sidebar.open .sidebar-header { opacity: 1; transform: translateY(0); transition: 0.5s 0.2s; }
-
-        .close-btn { font-size: 28px; cursor: pointer; color: #9aa0a6; transition: 0.4s; }
-        .close-btn:hover { color: white; transform: rotate(90deg); }
-
-        /* STAGGERED FOLDER LIST */
         .menu-item { 
-            padding: 16px; margin: 12px 0; border-radius: 16px; 
-            cursor: pointer; color: #c4c7c5; transition: 0.3s;
-            display: flex; align-items: center; gap: 15px;
-            opacity: 0; transform: translateX(-30px);
-            background: rgba(255, 255, 255, 0.03);
+            padding: 14px; margin: 8px 0; border-radius: 12px; 
+            cursor: pointer; color: #c4c7c5; display: flex; align-items: center; gap: 15px;
+            transition: 0.3s; opacity: 0; transform: translateX(-20px);
+            background: rgba(255,255,255,0.02);
         }
+        .sidebar.open .menu-item { opacity: 1; transform: translateX(0); transition: 0.4s 0.3s ease forwards; }
+        .menu-item:hover { background: rgba(66, 133, 244, 0.1); color: white; }
 
-        /* Smooth Entry for Folders */
-        .sidebar.open .menu-item:nth-child(2) { transition: 0.5s 0.3s ease forwards; opacity: 1; transform: translateX(0); }
-        .sidebar.open .menu-item:nth-child(3) { transition: 0.5s 0.4s ease forwards; opacity: 1; transform: translateX(0); }
-        .sidebar.open .menu-item:nth-child(4) { transition: 0.5s 0.5s ease forwards; opacity: 1; transform: translateX(0); }
-        .sidebar.open .menu-item:nth-child(5) { transition: 0.5s 0.6s ease forwards; opacity: 1; transform: translateX(0); }
+        /* --- HEADER --- */
+        header { padding: 15px 20px; display: flex; align-items: center; flex-shrink: 0; }
+        .menu-icon { font-size: 26px; cursor: pointer; padding: 5px; }
 
-        .menu-item:hover { background: rgba(66, 133, 244, 0.1); color: white; transform: scale(1.02); }
-
-        /* --- CHAT SECTION --- */
-        header { padding: 18px 24px; display: flex; align-items: center; flex-shrink: 0; }
-        .menu-icon { font-size: 28px; cursor: pointer; transition: 0.3s; }
-
-        #chat-area { flex-grow: 1; display: flex; flex-direction: column; padding: 25px; overflow-y: auto; justify-content: center; }
+        /* --- CHAT AREA --- */
+        #chat-area { flex-grow: 1; display: flex; flex-direction: column; padding: 20px; overflow-y: auto; justify-content: center; }
         .chat-row { display: flex; align-items: flex-start; gap: 16px; width: 100%; max-width: 800px; margin: 0 auto; }
 
-        /* Tiny Orbit Loader */
+        /* THE REPLAY CIRCLE WITH SUCCESS GLOW */
         .ai-avatar {
-            width: 36px; height: 36px; border-radius: 50%;
+            width: 38px; height: 38px; border-radius: 50%;
             background: rgba(255,255,255,0.08); flex-shrink: 0;
             position: relative; margin-top: 5px;
-            box-shadow: inset 0 0 10px rgba(255,255,255,0.05);
+            transition: all 0.5s ease;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; border: 1px solid rgba(255,255,255,0.1);
         }
+
+        /* Spin Animation */
         .thinking .ai-avatar::after {
-            content: ''; position: absolute; top: -4px; left: -4px;
-            right: -4px; bottom: -4px; border-radius: 50%;
-            border: 3px solid transparent;
-            border-left: 3px solid var(--gemini-blue);
-            border-top: 3px solid var(--gemini-purple);
-            animation: orbit 1s linear infinite;
-            filter: drop-shadow(0 0 8px var(--gemini-blue));
+            content: ''; position: absolute; top: -5px; left: -5px;
+            right: -5px; bottom: -5px; border-radius: 50%;
+            border: 2.5px solid transparent;
+            border-left: 2.5px solid var(--gemini-blue);
+            border-top: 2.5px solid var(--gemini-purple);
+            animation: orbit 0.8s linear infinite;
         }
+
+        /* Success Pulse Glow (Replay Mode) */
+        .success-pulse {
+            border: 1.5px solid var(--success-cyan) !important;
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
+            animation: pulse-ring 1.2s ease-out;
+        }
+
         @keyframes orbit { 100% { transform: rotate(360deg); } }
+        
+        @keyframes pulse-ring {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 12px rgba(0, 242, 255, 0); }
+            100% { transform: scale(1); }
+        }
 
-        #msg-display { font-size: 19px; line-height: 1.7; color: #e8eaed; font-weight: 300; }
+        #msg-display { font-size: 18px; line-height: 1.7; color: var(--text-gray); }
 
-        /* --- GLOWING INPUT BAR --- */
-        .input-container { padding: 15px 25px 50px; display: flex; justify-content: center; flex-shrink: 0; }
+        /* --- INPUT BAR --- */
+        .input-container { padding: 10px 20px 45px; display: flex; justify-content: center; flex-shrink: 0; }
         .input-pill {
-            width: 100%; max-width: 750px; background: #1e1f20;
-            border-radius: 35px; display: flex; align-items: center;
-            padding: 12px 28px; border: 1px solid rgba(255,255,255,0.05);
-            transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 100%; max-width: 720px; background: #1e1f20;
+            border-radius: 32px; display: flex; align-items: center;
+            padding: 6px 15px; border: 1px solid rgba(255,255,255,0.05);
+            transition: 0.4s; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
         }
-        .input-pill:focus-within {
-            border: 1px solid var(--gemini-blue);
-            box-shadow: 0 0 35px rgba(66, 133, 244, 0.35); /* Stronger Diamond Glow */
-            background: #232526;
-        }
-        input { background: none; border: none; color: white; width: 100%; padding: 14px 0; outline: none; font-size: 17px; }
+        .input-pill:focus-within { border: 1px solid var(--gemini-blue); box-shadow: 0 0 30px rgba(66, 133, 244, 0.2); }
+
+        .icon-btn { font-size: 22px; color: #9aa0a6; cursor: pointer; padding: 10px; transition: 0.3s; }
+        input { background: none; border: none; color: white; flex-grow: 1; padding: 12px 10px; outline: none; font-size: 16px; }
+
+        .send-btn { color: var(--gemini-blue); opacity: 0.3; pointer-events: none; transition: 0.3s; }
+        .send-btn.active { opacity: 1; pointer-events: auto; transform: scale(1.1); }
     </style>
 </head>
 <body>
@@ -120,31 +122,32 @@
 
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <span style="font-weight: 600; letter-spacing: 2px; color: #9aa0a6;">FOLDERS</span>
+            <span style="font-weight: bold; letter-spacing: 1.5px; color: #9aa0a6;">FOLDERS</span>
             <span class="close-btn" onclick="toggleSidebar()">✕</span>
         </div>
-        <div class="menu-item">📁 Security Logs</div>
+        <div class="menu-item">📂 Security Logs</div>
         <div class="menu-item">🛡️ Diamond Core</div>
         <div class="menu-item">⚡ System Bypass</div>
         <div class="menu-item">🕒 Recent Sessions</div>
-        <div style="margin-top: auto; font-size: 12px; color: #5f6368; text-align: center; opacity: 0.5;">DELNA AI DIAMOND v3.5</div>
     </div>
 
     <header>
         <div class="menu-icon" onclick="toggleSidebar()">☰</div>
-        <div style="margin-left: 20px; font-size: 16px; letter-spacing: 3px; font-weight: 600; color: #e8eaed; text-transform: uppercase;">Delna AI</div>
+        <div style="margin-left: 18px; font-size: 15px; letter-spacing: 3px; font-weight: bold; color: #e8eaed;">DELNA AI</div>
     </header>
 
     <div id="chat-area">
         <div class="chat-row" id="chatRow">
-            <div class="ai-avatar"></div>
+            <div class="ai-avatar" id="avatarCircle">D</div>
             <div id="msg-display">Waiting for your command, Commander.</div>
         </div>
     </div>
 
     <div class="input-container">
         <div class="input-pill">
+            <div class="icon-btn">+</div>
             <input type="text" id="userInput" placeholder="Ask Delna AI..." autocomplete="off">
+            <div class="icon-btn send-btn" id="sendBtn" onclick="processMessage()">➤</div>
         </div>
     </div>
 
@@ -155,23 +158,44 @@
         }
 
         const input = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
         const display = document.getElementById('msg-display');
         const chatRow = document.getElementById('chatRow');
+        const avatarCircle = document.getElementById('avatarCircle');
 
-        input.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                const val = input.value;
-                if (!val) return;
-                input.value = '';
-                display.innerHTML = '';
-                chatRow.classList.add('thinking');
-
-                setTimeout(() => {
-                    display.innerText = "Delna AI Analysis complete. Everything is steady.";
-                    chatRow.classList.remove('thinking');
-                }, 1600);
-            }
+        input.addEventListener('input', () => {
+            if (input.value.trim() !== "") sendBtn.classList.add('active');
+            else sendBtn.classList.remove('active');
         });
+
+        function processMessage() {
+            const val = input.value.trim();
+            if (!val) return;
+
+            input.value = '';
+            sendBtn.classList.remove('active');
+            display.innerHTML = '';
+            
+            // Start Loading Animation
+            chatRow.classList.add('thinking');
+            avatarCircle.classList.remove('success-pulse');
+
+            setTimeout(() => {
+                // Success / Replay State
+                chatRow.classList.remove('thinking');
+                display.innerText = "Delna AI Analysis complete. All systems are optimized for Commander.";
+                
+                // Add the Success Pulse Glow
+                avatarCircle.classList.add('success-pulse');
+                
+                // Optional: Remove glow after animation
+                setTimeout(() => {
+                    avatarCircle.classList.remove('success-pulse');
+                }, 2000);
+            }, 1800);
+        }
+
+        input.addEventListener('keypress', (e) => { if (e.key === 'Enter') processMessage(); });
     </script>
 </body>
 </html>
