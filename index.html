@@ -3,138 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delna AI | Real Gemini Vibe</title>
+    <title>Delna AI | Workspace</title>
     <style>
         :root {
+            --bg-dark: #0e1117;
+            --sidebar-bg: #17191e;
             --gemini-blue: #4285f4;
             --gemini-purple: #9b72cb;
-            --gemini-cyan: #24c1e0;
-            --bg-color: #0b0e14;
+            --text-main: #e8eaed;
         }
 
         body {
-            background: radial-gradient(circle at center, #1a1f2c 0%, var(--bg-color) 100%);
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0; height: 100vh;
-            display: flex; overflow: hidden;
-            justify-content: flex-end; /* Always side panel */
-            align-items: center;
-            padding-right: 20px;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            margin: 0; display: flex; height: 100vh; overflow: hidden;
         }
 
-        /* Mobile specific adjustment */
-        @media (max-width: 600px) {
-            body { padding-right: 10px; padding-left: 10px; }
-            .dashboard { width: 95% !important; height: auto !important; border-radius: 30px !important; }
+        /* --- SIDEBAR (Folders & History) --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            display: flex; flex-direction: column;
+            padding: 20px; border-right: 1px solid rgba(255,255,255,0.05);
         }
 
-        .dashboard {
-            background: rgba(255, 255, 255, 0.04);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 30px;
-            padding: 40px 25px;
-            width: 360px;
-            height: 85vh;
-            text-align: center;
-            box-shadow: -10px 0 50px rgba(0, 0, 0, 0.5);
-            display: flex; flex-direction: column; justify-content: center;
+        .new-chat-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white; padding: 12px; border-radius: 12px;
+            text-align: left; cursor: pointer; margin-bottom: 30px;
         }
 
-        /* LOGO & GEMINI STYLE LOADING */
-        .logo-wrapper {
-            position: relative;
-            width: 130px; height: 130px;
-            margin: 0 auto 30px;
-            display: flex; justify-content: center; align-items: center;
+        .folder-section { flex-grow: 1; font-size: 14px; color: #9aa0a6; }
+        .folder-item { padding: 10px; cursor: pointer; border-radius: 8px; transition: 0.3s; }
+        .folder-item:hover { background: rgba(255,255,255,0.05); color: white; }
+
+        /* --- MAIN CONTENT --- */
+        .main-content {
+            flex-grow: 1; display: flex; flex-direction: column;
+            position: relative; align-items: center; justify-content: center;
         }
 
-        /* The Gradient Ring (Like Gemini) */
+        /* LOGO & LOADING (The Gemini Vibe) */
+        .logo-area { position: relative; width: 150px; height: 150px; margin-bottom: 20px; }
+        
         .shield-ring {
-            position: absolute;
-            width: 100%; height: 100%;
-            border-radius: 50%;
-            border: 3px solid transparent;
-            /* Gradient look using border-image logic or multiple borders */
+            position: absolute; width: 100%; height: 100%;
+            border-radius: 50%; border: 3px solid transparent;
             border-left: 3px solid var(--gemini-blue);
             border-top: 3px solid var(--gemini-purple);
-            opacity: 0.2;
-            transition: 0.5s all ease;
+            opacity: 0.3; animation: rotate 6s linear infinite;
         }
 
-        /* Thinking Animation - The REAL Gemini Style */
         .thinking .shield-ring {
-            opacity: 1;
             animation: gemini-spin 1s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-            border-left: 4px solid var(--gemini-cyan);
-            border-top: 4px solid var(--gemini-purple);
-            filter: blur(1px) drop-shadow(0 0 10px var(--gemini-blue));
-            width: 110%; height: 110%;
+            opacity: 1; width: 110%; height: 110%;
+            filter: drop-shadow(0 0 15px var(--gemini-blue));
         }
 
         @keyframes gemini-spin {
             0% { transform: rotate(0deg) scale(1); }
-            50% { transform: rotate(180deg) scale(1.05); filter: drop-shadow(0 0 20px var(--gemini-purple)); }
             100% { transform: rotate(360deg) scale(1); }
         }
 
         .shield-icon {
-            font-size: 45px;
-            z-index: 2;
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
-            transition: 0.5s;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 50px; filter: drop-shadow(0 0 10px var(--gemini-blue));
         }
 
-        .thinking .shield-icon {
-            transform: scale(0.9);
-            opacity: 0.8;
+        /* --- CHAT DISPLAY --- */
+        #chat-window {
+            width: 80%; max-width: 800px; flex-grow: 1;
+            display: flex; flex-direction: column; justify-content: center;
+            text-align: center; overflow-y: auto;
         }
 
-        /* UI Elements */
-        .input-box {
-            background: rgba(255, 255, 255, 0.07);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 25px;
-            padding: 15px 20px;
-            width: 85%; color: white;
-            outline: none; margin-top: auto;
-            text-align: center; font-size: 14px;
+        .response-text { font-size: 18px; line-height: 1.6; color: #e8eaed; }
+
+        /* --- MESSAGE BAR (With Blue Shade/Glow) --- */
+        .input-container {
+            width: 100%; max-width: 800px; padding: 40px;
+            display: flex; justify-content: center;
         }
 
-        #output-msg {
-            margin: 30px 0; font-size: 15px;
-            color: #e0e0e0; min-height: 60px;
-            line-height: 1.6;
+        .input-wrapper {
+            width: 100%; position: relative;
+            background: #1e1f20; border-radius: 30px;
+            display: flex; align-items: center; padding: 5px 20px;
+            transition: 0.3s;
+            border: 1px solid transparent;
         }
 
-        .status-pill {
-            background: rgba(0, 255, 204, 0.1);
-            color: #00ffcc; padding: 5px 15px;
-            border-radius: 20px; font-size: 10px;
-            letter-spacing: 2px; display: inline-block;
-            margin-bottom: 20px;
+        .input-wrapper:focus-within {
+            border: 1px solid rgba(66, 133, 244, 0.5);
+            box-shadow: 0 0 20px rgba(66, 133, 244, 0.2); /* Blue Shade Glow */
         }
+
+        .input-wrapper input {
+            background: none; border: none; color: white;
+            width: 100%; padding: 15px; outline: none; font-size: 16px;
+        }
+
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <div class="dashboard">
-        <div>
-            <div class="status-pill">DELNA SECURED</div>
+    <div class="sidebar">
+        <button class="new-chat-btn">+ New Chat</button>
+        <div class="folder-section">
+            <p style="margin-left: 10px; font-weight: bold;">Recent folders</p>
+            <div class="folder-item">📂 Security Logs</div>
+            <div class="folder-item">📂 System Bypass</div>
+            <div class="folder-item">📂 Delna AI Core</div>
         </div>
-        
-        <div class="logo-wrapper" id="logoFrame">
-            <div class="shield-ring"></div>
-            <div class="shield-icon">🛡️</div>
+        <div style="font-size: 12px; color: #5f6368; padding: 10px;">Delna AI v2.0</div>
+    </div>
+
+    <div class="main-content">
+        <div id="chat-window">
+            <div class="logo-area" id="logoFrame">
+                <div class="shield-ring"></div>
+                <div class="shield-icon">🛡️</div>
+            </div>
+            <h2 id="welcome-text">Hello, Commander. How can I protect your system today?</h2>
+            <div id="output-msg" class="response-text"></div>
         </div>
 
-        <h2 style="font-weight: 300; letter-spacing: 4px; margin: 0;">DELNA AI</h2>
-        
-        <div id="output-msg">How can I help you today?</div>
-
-        <div style="margin-top: auto;">
-            <input type="text" class="input-box" id="userInput" placeholder="Ask Delna AI..." autocomplete="off">
+        <div class="input-container">
+            <div class="input-wrapper">
+                <input type="text" id="userInput" placeholder="Enter a prompt here" autocomplete="off">
+            </div>
         </div>
     </div>
 
@@ -142,11 +142,12 @@
         const input = document.getElementById('userInput');
         const output = document.getElementById('output-msg');
         const logoFrame = document.getElementById('logoFrame');
+        const welcome = document.getElementById('welcome-text');
 
         function typeWriter(text, i = 0) {
             if (i < text.length) {
                 output.innerHTML += text.charAt(i);
-                setTimeout(() => typeWriter(text, i + 1), 35);
+                setTimeout(() => typeWriter(text, i + 1), 30);
             } else {
                 logoFrame.classList.remove('thinking');
             }
@@ -156,16 +157,15 @@
             if (e.key === 'Enter') {
                 const val = input.value;
                 if (!val) return;
-                input.value = '';
-                output.innerHTML = '';
                 
-                // Trigger Gemini Gradient Animation
+                input.value = '';
+                welcome.style.display = 'none'; // Hide welcome on first chat
+                output.innerHTML = '';
                 logoFrame.classList.add('thinking');
 
                 setTimeout(() => {
-                    let response = "I've analyzed your request: " + val + ". Secure protocols remain optimal.";
-                    typeWriter(response);
-                }, 1500); 
+                    typeWriter("Delna AI: Analysis complete for '" + val + "'. Protection protocols are holding steady.");
+                }, 1500);
             }
         });
     </script>
