@@ -2,25 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delna AI | Gemini Style</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Delna AI | Final Fix</title>
     <style>
         :root {
             --bg-color: #0e1117;
             --sidebar-bg: #17191e;
             --gemini-blue: #4285f4;
             --gemini-purple: #9b72cb;
-            --gemini-cyan: #24c1e0;
+            --input-bg: #1e1f20;
         }
 
+        /* Keyboard-friendly Dynamic Height Fix */
         body, html {
-            margin: 0; padding: 0; height: 100%;
+            margin: 0; padding: 0; 
+            height: 100vh; height: 100dvh; 
             background-color: var(--bg-color);
             color: white; font-family: 'Segoe UI', sans-serif;
             overflow: hidden;
         }
 
-        .wrapper { display: flex; height: 100vh; width: 100vw; position: relative; }
+        .wrapper { display: flex; height: 100%; width: 100vw; position: relative; }
 
         /* --- SIDEBAR --- */
         .sidebar {
@@ -28,7 +30,7 @@
             display: flex; flex-direction: column;
             padding: 20px; border-right: 1px solid rgba(255,255,255,0.05);
             position: absolute; height: 100%; z-index: 1000;
-            transform: translateX(-100%); transition: transform 0.3s ease;
+            transform: translateX(-100%); transition: 0.3s ease;
         }
         .sidebar.open { transform: translateX(0); }
         .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
@@ -36,63 +38,63 @@
 
         /* --- MAIN CONTENT --- */
         .main { flex-grow: 1; display: flex; flex-direction: column; width: 100%; }
-        header { padding: 15px 20px; display: flex; align-items: center; }
-        .menu-icon { font-size: 24px; cursor: pointer; margin-right: 15px; }
+        header { padding: 15px 20px; display: flex; align-items: center; flex-shrink: 0; }
+        .menu-icon { font-size: 24px; cursor: pointer; }
 
-        /* --- CHAT AREA (Side Loading Style) --- */
+        /* --- CHAT AREA (Side Loading Only) --- */
         #chat-area {
             flex-grow: 1; display: flex; flex-direction: column;
-            padding: 40px 20px; overflow-y: auto;
+            padding: 20px; overflow-y: auto;
         }
 
-        .response-container {
-            display: flex; align-items: flex-start; gap: 15px;
-            max-width: 800px; margin: 0 auto; width: 100%;
+        .chat-row {
+            display: flex; align-items: flex-start; gap: 12px;
+            width: 100%; max-width: 800px; margin: 0 auto;
         }
 
-        /* The Tiny Side Loading Orbit (Like Gemini) */
-        .ai-icon-fixed {
-            width: 30px; height: 30px; border-radius: 50%;
-            position: relative; flex-shrink: 0; margin-top: 5px;
-            background: rgba(255,255,255,0.05);
+        /* Tiny Side Orbit (Marked in your screenshot) */
+        .ai-avatar {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: rgba(255,255,255,0.1); flex-shrink: 0;
+            position: relative; margin-top: 4px;
         }
 
-        .thinking .ai-icon-fixed::after {
-            content: ''; position: absolute; top: -2px; left: -2px;
-            right: -2px; bottom: -2px; border-radius: 50%;
+        .thinking .ai-avatar::after {
+            content: ''; position: absolute; top: -3px; left: -3px;
+            right: -3px; bottom: -3px; border-radius: 50%;
             border: 2px solid transparent;
             border-left: 2px solid var(--gemini-blue);
             border-top: 2px solid var(--gemini-purple);
-            animation: mini-spin 0.8s linear infinite;
+            animation: orbit 0.8s linear infinite;
         }
 
-        @keyframes mini-spin { 100% { transform: rotate(360deg); } }
+        @keyframes orbit { 100% { transform: rotate(360deg); } }
 
         #msg-display { font-size: 17px; line-height: 1.6; color: #e8eaed; }
 
-        /* --- FLOATING MESSAGE BOX (Mugalil & Glowing) --- */
-        .input-wrapper {
-            padding: 0 20px 80px; /* Message box kurach mugalil aakkan */
+        /* --- FLOATING INPUT BAR (Position Fix) --- */
+        .input-container {
+            padding: 10px 15px 40px; /* Thazhe ninnu ketti nirthan */
             display: flex; justify-content: center;
+            flex-shrink: 0; /* Keyboard varumbol squeeze aavathiriukan */
         }
 
         .input-pill {
-            width: 100%; max-width: 700px; background: #1e1f20;
-            border-radius: 32px; display: flex; align-items: center;
-            padding: 12px 24px; border: 1px solid transparent; 
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            width: 100%; max-width: 700px; background: var(--input-bg);
+            border-radius: 28px; display: flex; align-items: center;
+            padding: 10px 20px; border: 1px solid transparent;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: 0.3s;
         }
 
         .input-pill:focus-within {
-            border: 1px solid rgba(66, 133, 244, 0.6);
-            box-shadow: 0 0 30px rgba(66, 133, 244, 0.25); /* Stronger Blue Glow */
-            background: #232526;
+            border: 1px solid var(--gemini-blue);
+            box-shadow: 0 0 20px rgba(66, 133, 244, 0.3);
         }
 
         input {
-            background: none; border: none; color: white; flex-grow: 1;
-            padding: 8px 0; outline: none; font-size: 16px;
+            background: none; border: none; color: white;
+            width: 100%; padding: 10px; outline: none; font-size: 16px;
         }
     </style>
 </head>
@@ -101,27 +103,27 @@
     <div class="wrapper">
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <span style="font-weight: bold;">Recent folders</span>
+                <span style="font-weight: bold;">Folders</span>
                 <span class="close-btn" onclick="toggleSidebar()">✕</span>
             </div>
-            <div style="padding: 10px 0; color: #bdc1c6;">📂 Security Logs</div>
-            <div style="padding: 10px 0; color: #bdc1c6;">📂 Delna AI Core</div>
+            <div style="padding: 10px; color: #9aa0a6;">📂 Security Logs</div>
+            <div style="padding: 10px; color: #9aa0a6;">📂 Delna AI Core</div>
         </div>
 
         <div class="main">
             <header>
                 <div class="menu-icon" onclick="toggleSidebar()">☰</div>
-                <div style="font-size: 14px; letter-spacing: 2px;">DELNA AI</div>
+                <div style="margin-left: 15px; font-size: 14px; letter-spacing: 2px;">DELNA AI</div>
             </header>
 
             <div id="chat-area">
-                <div class="response-container" id="responseWrap">
-                    <div class="ai-icon-fixed" id="loadingIcon"></div>
-                    <div id="msg-display">How can I help you, Commander?</div>
+                <div class="chat-row" id="chatRow">
+                    <div class="ai-avatar"></div>
+                    <div id="msg-display">Hello, Commander. How can I help?</div>
                 </div>
             </div>
 
-            <div class="input-wrapper">
+            <div class="input-container">
                 <div class="input-pill">
                     <input type="text" id="userInput" placeholder="Ask Delna AI..." autocomplete="off">
                 </div>
@@ -130,13 +132,11 @@
     </div>
 
     <script>
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-        }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
         const input = document.getElementById('userInput');
         const display = document.getElementById('msg-display');
-        const loader = document.getElementById('responseWrap');
+        const chatRow = document.getElementById('chatRow');
 
         input.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
@@ -144,11 +144,11 @@
                 if (!val) return;
                 input.value = '';
                 display.innerHTML = '';
-                loader.classList.add('thinking');
+                chatRow.classList.add('thinking');
 
                 setTimeout(() => {
-                    display.innerText = "Delna AI: Analyzed '" + val + "'. All systems stable.";
-                    loader.classList.remove('thinking');
+                    display.innerText = "Delna AI Analysis complete for your request.";
+                    chatRow.classList.remove('thinking');
                 }, 1500);
             }
         });
