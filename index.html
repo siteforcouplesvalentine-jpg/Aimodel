@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delna AI | Security Dashboard</title>
+    <style>
+        :root {
+            --primary-glow: rgba(0, 212, 255, 0.6);
+            --accent-glow: rgba(255, 0, 150, 0.6);
+            --bg-color: #0b0e14;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #1a1f2c 0%, var(--bg-color) 100%);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Glassmorphism Container */
+        .dashboard {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 40px;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+
+        .status-bar {
+            color: #00ffcc;
+            font-size: 12px;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px #00ffcc;
+        }
+
+        /* The Shield Logo Animation */
+        .logo-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 30px;
+        }
+
+        .shield-circle {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top: 2px solid var(--primary-glow);
+            border-bottom: 2px solid var(--accent-glow);
+            animation: rotate 3s linear infinite;
+        }
+
+        .shield-icon {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            filter: drop-shadow(0 0 10px var(--primary-glow));
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Input Field */
+        .input-box {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px 20px;
+            width: 90%;
+            color: white;
+            outline: none;
+            transition: 0.3s;
+            box-shadow: 0 0 5px rgba(0, 212, 255, 0.2);
+        }
+
+        .input-box:focus {
+            border-color: var(--primary-glow);
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        #output-msg {
+            margin-top: 20px;
+            font-size: 14px;
+            min-height: 20px;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+        <div class="status-bar" id="status">SYSTEM SECURED</div>
+        
+        <div class="logo-container">
+            <div class="shield-circle"></div>
+            <div class="shield-icon">🛡️</div>
+        </div>
+
+        <h2 style="font-weight: 300; letter-spacing: 2px;">DELNA AI</h2>
+        
+        <input type="text" class="input-box" id="userInput" placeholder="Type command..." autocomplete="off">
+        
+        <div id="output-msg">Awaiting input...</div>
+    </div>
+
+    <script>
+        const input = document.getElementById('userInput');
+        const output = document.getElementById('output-msg');
+        const status = document.getElementById('status');
+
+        input.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                const cmd = input.value.toLowerCase();
+                input.value = '';
+
+                if (cmd.includes('hack') || cmd.includes('format')) {
+                    status.innerText = 'THREAT DETECTED';
+                    status.style.color = '#ff4d4d';
+                    status.style.textShadow = '0 0 15px #ff4d4d';
+                    output.innerText = 'Access Denied: Protected by Delna AI Shield.';
+                    output.style.color = '#ff4d4d';
+                } else if (cmd.includes('hello') || cmd.includes('hi')) {
+                    output.innerText = 'Hello Commander. System is stable.';
+                    output.style.color = '#00ffcc';
+                } else {
+                    output.innerText = 'Command processed: ' + cmd;
+                    output.style.color = '#ccc';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
