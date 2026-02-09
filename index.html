@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delna AI | Security Interface</title>
+    <title>Delna AI | Side-Loading Interface</title>
     <style>
         :root {
             --primary-glow: rgba(0, 212, 255, 0.6);
@@ -25,50 +25,53 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 30px;
             padding: 50px;
-            width: 400px;
+            width: 380px;
             text-align: center;
             box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
-            transition: 1s ease;
-        }
-
-        /* The Shield & Circular Loader */
-        .logo-container {
             position: relative;
-            width: 160px; height: 160px;
-            margin: 0 auto 30px;
         }
 
-        .shield-circle {
+        /* Logo and Side-Loading Container */
+        .logo-wrapper {
+            position: relative;
+            width: 140px; height: 140px;
+            margin: 0 auto 30px;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        /* The Ring - Side Loading Effect */
+        .shield-ring {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            width: 110%; height: 110%;
             border-radius: 50%;
             border: 2px solid transparent;
-            border-top: 2px solid var(--primary-glow);
-            border-right: 2px solid var(--accent-glow);
-            animation: rotate 4s linear infinite;
-            transition: 0.5s;
+            /* Side-only border look */
+            border-left: 3px solid var(--primary-glow);
+            border-top: 1px solid transparent;
+            opacity: 0.3;
+            animation: rotate 5s linear infinite;
+            transition: all 0.5s ease;
         }
 
-        /* This happens when AI is 'Thinking' */
-        .thinking .shield-circle {
-            animation: rotate 0.8s linear infinite; /* Faster rotation */
-            border-top: 3px solid #00ffcc;
-            box-shadow: 0 0 25px #00ffcc;
+        /* Thinking Mode (Gemini Style) */
+        .thinking .shield-ring {
+            animation: rotate 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+            opacity: 1;
+            border-left: 4px solid #00ffcc;
+            filter: drop-shadow(0 0 10px #00ffcc);
+            width: 115%; height: 115%;
         }
 
         .shield-icon {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
             font-size: 50px;
             filter: drop-shadow(0 0 15px var(--primary-glow));
+            z-index: 2;
             transition: 0.5s;
         }
 
         .thinking .shield-icon {
-            filter: drop-shadow(0 0 30px #00ffcc);
-            transform: translate(-50%, -50%) scale(1.1);
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 25px #00ffcc);
         }
 
         @keyframes rotate {
@@ -76,6 +79,7 @@
             to { transform: rotate(360deg); }
         }
 
+        /* UI Elements */
         .input-box {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -84,26 +88,35 @@
             width: 85%; color: white;
             outline: none; text-align: center;
             transition: 0.4s;
+            font-size: 14px;
         }
 
-        .input-box:focus { border-color: var(--primary-glow); box-shadow: 0 0 20px rgba(0, 212, 255, 0.2); }
+        .input-box:focus { border-color: var(--primary-glow); box-shadow: 0 0 15px rgba(0, 212, 255, 0.2); }
 
-        #output-msg { margin-top: 25px; font-size: 14px; color: #88edff; min-height: 40px; }
+        #output-msg { 
+            margin-top: 25px; 
+            font-size: 14px; 
+            color: #88edff; 
+            min-height: 40px;
+            line-height: 1.5;
+        }
+
+        .status { font-size: 9px; letter-spacing: 3px; margin-bottom: 20px; color: #00ffcc; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
-    <div class="dashboard" id="mainDashboard">
-        <div id="status" style="font-size: 10px; letter-spacing: 3px; margin-bottom: 20px; color: #00ffcc;">SYSTEM SECURED</div>
+    <div class="dashboard">
+        <div class="status">Delna AI Secured</div>
         
-        <div class="logo-container" id="logoFrame">
-            <div class="shield-circle"></div>
+        <div class="logo-wrapper" id="logoFrame">
+            <div class="shield-ring"></div>
             <div class="shield-icon">🛡️</div>
         </div>
 
-        <h1 style="font-weight: 200; letter-spacing: 4px;">DELNA AI</h1>
+        <h1 style="font-weight: 200; letter-spacing: 5px; margin-bottom: 25px;">DELNA AI</h1>
         
-        <input type="text" class="input-box" id="userInput" placeholder="Enter command..." autocomplete="off">
+        <input type="text" class="input-box" id="userInput" placeholder="Ask Delna AI..." autocomplete="off">
         
         <div id="output-msg"></div>
     </div>
@@ -116,9 +129,9 @@
         function typeWriter(text, i = 0) {
             if (i < text.length) {
                 output.innerHTML += text.charAt(i);
-                setTimeout(() => typeWriter(text, i + 1), 40);
+                setTimeout(() => typeWriter(text, i + 1), 35);
             } else {
-                // Stop thinking animation when typing finishes
+                // Stop the side-loading animation
                 logoFrame.classList.remove('thinking');
             }
         }
@@ -126,19 +139,22 @@
         input.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 const val = input.value;
+                if (!val) return;
+
                 input.value = '';
                 output.innerHTML = '';
                 
-                // Start thinking animation
+                // Trigger Gemini-style side animation
                 logoFrame.classList.add('thinking');
 
-                // Simulate processing delay
+                // Artificial delay to show 'thinking'
                 setTimeout(() => {
-                    let response = "Executing secure protocol for: " + val;
-                    if(val.toLowerCase().includes("hack")) response = "Threat blocked. Delna AI has secured the perimeter.";
-                    
+                    let response = "Commander, Delna AI is analyzing the data for: " + val;
+                    if(val.toLowerCase().includes("hack")) {
+                        response = "Intrusion detected. Shield protocols fully activated. Threat neutralized.";
+                    }
                     typeWriter(response);
-                }, 1200); // 1.2 seconds 'thinking' time
+                }, 1500); 
             }
         });
     </script>
